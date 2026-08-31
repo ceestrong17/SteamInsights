@@ -1,15 +1,19 @@
 package com.ceestrong.steaminsights.service;
 
+import com.ceestrong.steaminsights.dto.AppDetailsResponse;
 import com.ceestrong.steaminsights.dto.OwnedGamesResponse;
 import com.ceestrong.steaminsights.dto.PlayerSummaryResponse;
 import com.ceestrong.steaminsights.dto.PlayerSummaryResponse.Player;
+import com.ceestrong.steaminsights.exception.AppDetailsNotFoundException;
 import com.ceestrong.steaminsights.exception.InvalidSteamIdException;
 import com.ceestrong.steaminsights.exception.NoGamesFoundException;
 import com.ceestrong.steaminsights.exception.PlayerNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SteamApiService {
@@ -18,6 +22,8 @@ public class SteamApiService {
     private String apiKey;
 
     private final RestClient restClient = RestClient.create("https://api.steampowered.com");
+
+    private final RestClient storeRestClient = RestClient.create("https://store.steampowered.com");
 
     public Player getPlayerSummary(String steamId){
         PlayerSummaryResponse response;
@@ -50,6 +56,20 @@ public class SteamApiService {
             throw new NoGamesFoundException("No games found for Steam ID: " + steamId);
         } else {
             return response.response().games();
+        }
+    }
+
+    public AppDetailsResponse.AppDetailsEntry getAppDetails(Integer appId){
+        Map<Integer, AppDetailsResponse.AppDetailsEntry> response;
+        response = storeRestClient.get()
+                .uri("/api/appdetails?appids={appId}", appId)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {
+                });
+        if(!response.get(appId).success()){
+            throw new AppDetailsNotFoundException("App details not found for App ID: " + appId);
+        } else {
+            return response.get(appId);
         }
     }
 
