@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +22,8 @@ public class SteamApiService {
 
     @Value("${steam.api.key}")
     private String apiKey;
+
+    private final Map<Integer, AppDetailsResponse.AppDetailsEntry> cache = new HashMap<>();
 
     private final RestClient restClient = RestClient.create("https://api.steampowered.com");
 
@@ -60,12 +64,18 @@ public class SteamApiService {
     }
 
     public AppDetailsResponse.AppDetailsEntry getAppDetails(Integer appId){
+        if(cache.containsKey(appId)){
+            if(!cache.get(appId).success()){
+                throw new AppDetailsNotFoundException("App details not found for App ID: " + appId);
+            }
+            return cache.get(appId);
+        }
         Map<Integer, AppDetailsResponse.AppDetailsEntry> response;
         response = storeRestClient.get()
                 .uri("/api/appdetails?appids={appId}", appId)
                 .retrieve()
-                .body(new ParameterizedTypeReference<>() {
-                });
+                .body(new ParameterizedTypeReference<>() {});
+        cache.put(appId, response.get(appId));
         if(!response.get(appId).success()){
             throw new AppDetailsNotFoundException("App details not found for App ID: " + appId);
         } else {
