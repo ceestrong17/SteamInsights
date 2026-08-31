@@ -18,4 +18,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(InvalidSteamIdException.class)
+    public ResponseEntity<String> handleInvalidSteamIdException(InvalidSteamIdException ex){
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
 }
