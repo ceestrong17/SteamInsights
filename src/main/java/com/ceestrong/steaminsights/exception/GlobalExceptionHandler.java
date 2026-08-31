@@ -13,4 +13,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(NoGamesFoundException.class)
+    public ResponseEntity<String> handleNoGamesFoundException(NoGamesFoundException ex){
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
 }
