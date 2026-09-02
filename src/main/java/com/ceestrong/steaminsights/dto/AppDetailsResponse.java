@@ -6,7 +6,7 @@ public class AppDetailsResponse {
 
     public record AppDetailsEntry(boolean success, AppDetailsData data){}
 
-    public record AppDetailsData(List<Genre> genres, List<Category> categories){}
+    public record AppDetailsData(String name, List<Genre> genres, List<Category> categories){}
 
     public record Genre(String id, String description){}
 

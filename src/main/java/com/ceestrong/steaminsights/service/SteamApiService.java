@@ -13,9 +13,9 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class SteamApiService {
@@ -23,7 +23,7 @@ public class SteamApiService {
     @Value("${steam.api.key}")
     private String apiKey;
 
-    private final Map<Integer, AppDetailsResponse.AppDetailsEntry> cache = new HashMap<>();
+    private final Map<Integer, AppDetailsResponse.AppDetailsEntry> cache = new ConcurrentHashMap<>();
 
     private final RestClient restClient = RestClient.create("https://api.steampowered.com");
 
