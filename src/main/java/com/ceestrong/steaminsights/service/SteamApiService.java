@@ -71,11 +71,16 @@ public class SteamApiService {
             return cache.get(appId);
         }
         Map<Integer, AppDetailsResponse.AppDetailsEntry> response;
-        response = storeRestClient.get()
-                .uri("/api/appdetails?appids={appId}", appId)
-                .retrieve()
-                .body(new ParameterizedTypeReference<>() {});
-        cache.put(appId, response.get(appId));
+        try {
+            response = storeRestClient.get()
+                    .uri("/api/appdetails?appids={appId}", appId)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {
+                    });
+            cache.put(appId, response.get(appId));
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            throw new AppDetailsNotFoundException(" App details not found for App ID: " + appId);
+        }
         if(!response.get(appId).success()){
             throw new AppDetailsNotFoundException("App details not found for App ID: " + appId);
         } else {
